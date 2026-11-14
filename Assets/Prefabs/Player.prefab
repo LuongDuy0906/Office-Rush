@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2687385191841147875}
   - component: {fileID: 714678832112158374}
   - component: {fileID: 373566337292764911}
+  - component: {fileID: 8824382933000556193}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -84,6 +85,18 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!114 &8824382933000556193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4294335413854770379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a74cbff84f1a1ef47b7250eb0ac9f3b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSwipe
 --- !u!1001 &4609577687714838306
 PrefabInstance:
   m_ObjectHideFlags: 0
