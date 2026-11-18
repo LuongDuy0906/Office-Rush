@@ -5,12 +5,17 @@ using UnityEngine.InputSystem;
 public class PlayerSwipe : MonoBehaviour
 {
     [SerializeField] private float laneChangeSpeed = 6f;
+    [SerializeField] private float jumpForce = 6f;
 
     private Rigidbody body;
     private InputAction pressAction;
     private Pointer activePointer;
     private Vector2 startPosition;
     private float targetX;
+    private bool isGround = true;
+    private bool isJump;
+
+    public bool IsGround => isGround;
 
     private void Awake()
     {
@@ -44,24 +49,44 @@ public class PlayerSwipe : MonoBehaviour
         Vector2 delta = activePointer.position.ReadValue() - startPosition;
         activePointer = null;
 
-        if (Mathf.Abs(delta.x) < Screen.width * 0.08f ||
-            Mathf.Abs(delta.x) <= Mathf.Abs(delta.y))
-            return;
-
-        targetX = Mathf.Clamp(
-            targetX + Mathf.Sign(delta.x) * 1.5f, -1.5f, 1.5f);
+        DetectSwipeHorizontalOrVertical(delta);
     }
 
     private void FixedUpdate()
     {
         Vector3 velocity = body.linearVelocity;
-        float distance = targetX - body.position.x;
+        float distanceX = targetX - body.position.x;
 
         velocity.x = Mathf.Clamp(
-            distance / Time.fixedDeltaTime,
+            distanceX / Time.fixedDeltaTime,
             -laneChangeSpeed,
             laneChangeSpeed);
 
         body.linearVelocity = velocity;
+        Jump();
+    }
+
+    private void DetectSwipeHorizontalOrVertical(Vector2 delta)
+    {
+        if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y))
+        {
+            if (Mathf.Abs(delta.x) >= Screen.width * 0.08f)
+                targetX = Mathf.Clamp(
+                    targetX + Mathf.Sign(delta.x) * 1.5f, -1.5f, 1.5f);
+        }
+        else if (delta.y > Screen.height * 0.05f)
+        {
+            isJump = true;
+        }
+    }
+
+    private void Jump()
+    {
+        if (isGround && isJump)
+        {
+            body.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            isGround = false;
+            isJump = false;
+        }
     }
 }
