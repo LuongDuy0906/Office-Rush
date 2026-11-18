@@ -11,11 +11,10 @@ public class PlayerSwipe : MonoBehaviour
     private InputAction pressAction;
     private Pointer activePointer;
     private Vector2 startPosition;
+    private Animator animator;
     private float targetX;
     private bool isGround = true;
     private bool isJump;
-
-    public bool IsGround => isGround;
 
     private void Awake()
     {
@@ -28,6 +27,8 @@ public class PlayerSwipe : MonoBehaviour
 
         pressAction.started += OnPress;
         pressAction.canceled += OnRelease;
+
+        animator = GetComponentInChildren<Animator>();
     }
 
     private void OnEnable() => pressAction.Enable();
@@ -50,6 +51,11 @@ public class PlayerSwipe : MonoBehaviour
         activePointer = null;
 
         DetectSwipeHorizontalOrVertical(delta);
+    }
+
+    void Update()
+    {
+        UpdateAnimation();
     }
 
     private void FixedUpdate()
@@ -86,7 +92,21 @@ public class PlayerSwipe : MonoBehaviour
         {
             body.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             isGround = false;
-            isJump = false;
         }
+    }
+
+    public void SetIsGround()
+    {
+        isGround = true;
+    }
+
+    public void SetIsJump()
+    {
+        isJump = false;
+    }
+
+    private void UpdateAnimation()
+    {
+        animator.SetBool("isJump", isJump);
     }
 }
