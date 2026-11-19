@@ -4,22 +4,31 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerSwipe : MonoBehaviour
 {
+    private const float LaneWidth = 1.5f;
+    private const float DirectionDominance = 1.2f;
+    private static readonly int IsJumpParameter = Animator.StringToHash("isJump");
+
     [SerializeField] private float laneChangeSpeed = 6f;
     [SerializeField] private float jumpForce = 6f;
+    [SerializeField, Range(0.01f, 0.2f)] private float swipeThresholdRatio = 0.06f;
+    [SerializeField, Min(0.01f)] private float jumpBufferTime = 0.15f;
 
     private Rigidbody body;
+    private Animator animator;
     private InputAction pressAction;
     private Pointer activePointer;
     private Vector2 startPosition;
-    private Animator animator;
-    private float targetX;
-    private bool isGround = true;
-    private bool isJump;
+    private int targetLane;
+    private bool gestureHandled;
+    private bool isGround;
+    private bool isJumping;
+    private float jumpRequestedUntil = float.NegativeInfinity;
 
     private void Awake()
     {
         body = GetComponent<Rigidbody>();
-        targetX = body.position.x;
+        animator = GetComponentInChildren<Animator>();
+        targetLane = Mathf.Clamp(Mathf.RoundToInt(body.position.x / LaneWidth), -1, 1);
 
         pressAction = new InputAction(
             type: InputActionType.Button,
@@ -27,40 +36,54 @@ public class PlayerSwipe : MonoBehaviour
 
         pressAction.started += OnPress;
         pressAction.canceled += OnRelease;
-
-        animator = GetComponentInChildren<Animator>();
     }
 
     private void OnEnable() => pressAction.Enable();
-    private void OnDisable() => pressAction.Disable();
+
+    private void OnDisable()
+    {
+        activePointer = null;
+        gestureHandled = true;
+        jumpRequestedUntil = float.NegativeInfinity;
+        pressAction.Disable();
+    }
+
     private void OnDestroy() => pressAction.Dispose();
 
     private void OnPress(InputAction.CallbackContext context)
     {
+        if (activePointer != null) return;
+
         activePointer = context.control.device as Pointer;
-        if (activePointer != null)
-            startPosition = activePointer.position.ReadValue();
+        if (activePointer == null) return;
+
+        startPosition = activePointer.position.ReadValue();
+        gestureHandled = false;
     }
 
     private void OnRelease(InputAction.CallbackContext context)
     {
-        if (activePointer == null || context.control.device != activePointer)
-            return;
+        if (activePointer == null || context.control.device != activePointer) return;
 
-        Vector2 delta = activePointer.position.ReadValue() - startPosition;
+        if (!gestureHandled)
+            TryHandleSwipe(activePointer.position.ReadValue() - startPosition);
+
         activePointer = null;
-
-        DetectSwipeHorizontalOrVertical(delta);
     }
 
-    void Update()
+    private void Update()
     {
-        UpdateAnimation();
+        if (activePointer != null && !gestureHandled)
+            TryHandleSwipe(activePointer.position.ReadValue() - startPosition);
+
+        if (animator != null)
+            animator.SetBool(IsJumpParameter, isJumping);
     }
 
     private void FixedUpdate()
     {
         Vector3 velocity = body.linearVelocity;
+        float targetX = targetLane * LaneWidth;
         float distanceX = targetX - body.position.x;
 
         velocity.x = Mathf.Clamp(
@@ -69,44 +92,40 @@ public class PlayerSwipe : MonoBehaviour
             laneChangeSpeed);
 
         body.linearVelocity = velocity;
-        Jump();
+
+        if (!isGround || Time.time > jumpRequestedUntil) return;
+
+        jumpRequestedUntil = float.NegativeInfinity;
+        isGround = false;
+        isJumping = true;
+        body.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
 
-    private void DetectSwipeHorizontalOrVertical(Vector2 delta)
+    private void TryHandleSwipe(Vector2 delta)
     {
-        if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y))
+        float threshold = Mathf.Min(Screen.width, Screen.height) * swipeThresholdRatio;
+        float horizontal = Mathf.Abs(delta.x);
+        float vertical = Mathf.Abs(delta.y);
+
+        if (Mathf.Max(horizontal, vertical) < threshold) return;
+
+        if (horizontal >= vertical * DirectionDominance)
         {
-            if (Mathf.Abs(delta.x) >= Screen.width * 0.08f)
-                targetX = Mathf.Clamp(
-                    targetX + Mathf.Sign(delta.x) * 1.5f, -1.5f, 1.5f);
+            targetLane = Mathf.Clamp(targetLane + (int)Mathf.Sign(delta.x), -1, 1);
+            gestureHandled = true;
         }
-        else if (delta.y > Screen.height * 0.05f)
+        else if (vertical >= horizontal * DirectionDominance)
         {
-            isJump = true;
+            if (delta.y > 0f)
+                jumpRequestedUntil = Time.time + jumpBufferTime;
+
+            gestureHandled = true;
         }
     }
 
-    private void Jump()
+    public void SetGrounded(bool grounded)
     {
-        if (isGround && isJump)
-        {
-            body.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            isGround = false;
-        }
-    }
-
-    public void SetIsGround()
-    {
-        isGround = true;
-    }
-
-    public void SetIsJump()
-    {
-        isJump = false;
-    }
-
-    private void UpdateAnimation()
-    {
-        animator.SetBool("isJump", isJump);
+        isGround = grounded;
+        if (grounded) isJumping = false;
     }
 }

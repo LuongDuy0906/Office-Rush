@@ -99,7 +99,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSwipe
   laneChangeSpeed: 6
-  jumpForce: 0.2
+  jumpForce: 6
+  swipeThresholdRatio: 0.06
+  jumpBufferTime: 0.15
 --- !u!114 &-3232243852016424499
 MonoBehaviour:
   m_ObjectHideFlags: 0
