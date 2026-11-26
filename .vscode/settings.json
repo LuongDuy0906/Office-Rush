@@ -67,5 +67,5 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "Office Rush.slnx"
+    "dotnet.defaultSolution": "Office-Rush.slnx"
 }
