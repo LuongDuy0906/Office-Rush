@@ -1757,7 +1757,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51fb8f720e47cd54f9a542a1329697fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpawnManager
-  objectPooler: {fileID: 332800377}
+  objectPoolers:
+  - {fileID: 332800377}
   spawnAhead: 20
   defaultSpawnInterval: 2
 --- !u!1 &791225347
@@ -3950,7 +3951,7 @@ PrefabInstance:
       objectReference: {fileID: 9100000, guid: c300b9d5b76736a4a93766f47b6a1f41, type: 2}
     - target: {fileID: 8824382933000556193, guid: 2c58991ef460ce04c96c385afaae9ffa, type: 3}
       propertyPath: jumpForce
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8824382933000556193, guid: 2c58991ef460ce04c96c385afaae9ffa, type: 3}
       propertyPath: laneChangeSpeed

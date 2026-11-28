@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4968075476731819992}
+  - component: {fileID: 1214446109157434912}
   m_Layer: 0
   m_Name: people1
   m_TagString: Untagged
@@ -32,6 +33,29 @@ Transform:
   - {fileID: 7645434448273700760}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+--- !u!136 &1214446109157434912
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3910000268617322012}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.34984443
+  m_Height: 1.9613105
+  m_Direction: 1
+  m_Center: {x: 0.003660351, y: 0.92121476, z: 0}
 --- !u!1001 &7895007384100016243
 PrefabInstance:
   m_ObjectHideFlags: 0

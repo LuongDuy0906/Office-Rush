@@ -1,8 +1,9 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    [SerializeField] private ObjectPooler objectPooler;
+    [SerializeField] private List<ObjectPooler> objectPoolers;
     [SerializeField] private float spawnAhead = 5f;
     [SerializeField] private float defaultSpawnInterval = 1f;
 
@@ -13,7 +14,7 @@ public class SpawnManager : MonoBehaviour
     void Start()
     {
         playerTransform = FindAnyObjectByType<PlayerSwipe>().transform;
-        spawnInterval = defaultSpawnInterval;
+        spawnInterval = 0;
         defaultY = playerTransform.position.y;
     }
 
@@ -34,14 +35,22 @@ public class SpawnManager : MonoBehaviour
     private void SpawnObstacle()
     {
         int emptyLane = Random.Range(0, 3);
+        int gap = Random.Range(2, 5);
+
+        int spawned = 0;
 
         for(int lane = 0; lane < 3; lane++)
         {
             if(lane == emptyLane) continue;
+            int randomIndex = Random.Range(0, objectPoolers.Count);
 
             float x = (lane - 1) * 1.5f;
-            Vector3 spawnPosition = new Vector3(x, defaultY, playerTransform.position.z + spawnAhead);
-            objectPooler.GetPool(spawnPosition);
+            float z = playerTransform.position.z + spawnAhead + (spawned == 0? 0f : gap);
+
+            Vector3 spawnPosition = new Vector3(x, defaultY, z);
+            objectPoolers[randomIndex].GetPool(spawnPosition);
+
+            spawned++;
         }         
     }
 }
